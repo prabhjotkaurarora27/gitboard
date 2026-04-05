@@ -22,12 +22,21 @@ fetch("https://api.github.com/repos/prabhjotkaurarora27/gitboard/commits")
       }
     });
 
-    // Create leaderboard
-    for (let person in contributors) {
+    // Sort leaderboard
+    let sorted = Object.entries(contributors).sort((a, b) => b[1] - a[1]);
+
+    // Display leaderboard
+    sorted.forEach((entry, index) => {
       const li = document.createElement("li");
-      li.textContent = person + " - " + contributors[person] + " commits";
+
+      if (index === 0) {
+        li.textContent = "🏆 " + entry[0] + " - " + entry[1] + " commits";
+      } else {
+        li.textContent = entry[0] + " - " + entry[1] + " commits";
+      }
+
       leaderboard.appendChild(li);
-    }
+    });
   });
 
 
