@@ -1,42 +1,53 @@
-fetch("https://api.github.com/repos/prabhjotkaurarora27/gitboard/commits")
-  .then(response => response.json())
-  .then(data => {
-    const commitList = document.getElementById("commits");
-    const leaderboard = document.getElementById("leaderboard");
+function loadData() {
+  fetch("https://api.github.com/repos/prabhjotkaurarora27/gitboard/commits")
+    .then(response => response.json())
+    .then(data => {
+      const commitList = document.getElementById("commits");
+      const leaderboard = document.getElementById("leaderboard");
 
-    let contributors = {};
+      // Clear old data
+      commitList.innerHTML = "";
+      leaderboard.innerHTML = "";
 
-    data.forEach(commit => {
-      // Show commits
-      const li = document.createElement("li");
-      li.textContent = commit.commit.message;
-      commitList.appendChild(li);
+      let contributors = {};
 
-      // Count commits per person
-      const author = commit.commit.author.name;
+      data.forEach(commit => {
+        // Show commits
+        const li = document.createElement("li");
+        li.textContent = commit.commit.message;
+        commitList.appendChild(li);
 
-      if (contributors[author]) {
-        contributors[author]++;
-      } else {
-        contributors[author] = 1;
-      }
+        // Count contributors
+        const author = commit.commit.author.name;
+
+        if (contributors[author]) {
+          contributors[author]++;
+        } else {
+          contributors[author] = 1;
+        }
+      });
+
+      // Sort leaderboard
+      let sorted = Object.entries(contributors).sort((a, b) => b[1] - a[1]);
+
+      sorted.forEach((entry, index) => {
+        const li = document.createElement("li");
+
+        if (index === 0) {
+          li.textContent = "🏆 " + entry[0] + " - " + entry[1] + " commits";
+        } else {
+          li.textContent = entry[0] + " - " + entry[1] + " commits";
+        }
+
+        leaderboard.appendChild(li);
+      });
     });
+}
 
-    // Sort leaderboard
-    let sorted = Object.entries(contributors).sort((a, b) => b[1] - a[1]);
+// Run first time
+loadData();
 
-    // Display leaderboard
-    sorted.forEach((entry, index) => {
-      const li = document.createElement("li");
-
-      if (index === 0) {
-        li.textContent = "🏆 " + entry[0] + " - " + entry[1] + " commits";
-      } else {
-        li.textContent = entry[0] + " - " + entry[1] + " commits";
-      }
-
-      leaderboard.appendChild(li);
-    });
-  });
+// Auto refresh every 10 seconds
+setInterval(loadData, 10000);
 
 
